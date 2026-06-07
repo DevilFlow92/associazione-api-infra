@@ -1,0 +1,31 @@
+replicaCount: 1
+
+image:
+  pullPolicy: Always
+  tag: "dev"
+
+ingress:
+  enabled: true
+  host: associazione-api.dev.local
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+autoscaling:
+  enabled: false
+
+podDisruptionBudget:
+  enabled: false
+
+networkPolicy:
+  enabled: false
+
+config:
+  appEnv: development
+  appDebug: "true"
+  logLevel: DEBUG

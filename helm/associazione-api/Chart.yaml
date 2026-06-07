@@ -1,0 +1,18 @@
+apiVersion: v2
+name: associazione-api
+description: Helm chart for associazione-api — music association management backend
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
+keywords:
+  - fastapi
+  - postgresql
+  - python
+  - rest-api
+
+maintainers:
+  - name: <Lorenzo Fiori>
+    email: <loref92@gmail.com>
+
+dependencies: []

@@ -1,0 +1,86 @@
+name: Lint & Validate
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-helm:
+    name: Helm Lint & Template
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Helm lint — default values
+        run: |
+          helm lint helm/associazione-api
+
+      - name: Helm lint — dev
+        run: |
+          helm lint helm/associazione-api \
+            -f helm/associazione-api/values-dev.yaml
+
+      - name: Helm lint — staging
+        run: |
+          helm lint helm/associazione-api \
+            -f helm/associazione-api/values-staging.yaml
+
+      - name: Helm lint — prod
+        run: |
+          helm lint helm/associazione-api \
+            -f helm/associazione-api/values-prod.yaml
+
+      - name: Helm template — render all envs
+        run: |
+          for env in dev staging prod; do
+            echo "=== Rendering $env ==="
+            helm template associazione-api helm/associazione-api \
+              -f helm/associazione-api/values-${env}.yaml \
+              --set secret.databaseUrl=dummyurl \
+              --set secret.secretKey=dummykey \
+              > /tmp/rendered-${env}.yaml
+            echo "OK"
+          done
+
+      - name: Install kubeval
+        run: |
+          wget -qO /tmp/kubeval.tar.gz \
+            https://github.com/instrumenta/kubeval/releases/latest/download/kubeval-linux-amd64.tar.gz
+          tar -xzf /tmp/kubeval.tar.gz -C /tmp
+          sudo mv /tmp/kubeval /usr/local/bin/
+
+      - name: Kubeval — validate rendered manifests
+        run: |
+          for env in dev staging prod; do
+            echo "=== Validating $env ==="
+            kubeval /tmp/rendered-${env}.yaml \
+              --ignore-missing-schemas \
+              --kubernetes-version 1.29.0
+          done
+
+  lint-kustomize:
+    name: Kustomize Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up kubectl (includes kustomize)
+        uses: azure/setup-kubectl@v4
+
+      - name: Kustomize build — dev
+        run: kubectl kustomize kustomize/overlays/dev
+
+      - name: Kustomize build — staging
+        run: kubectl kustomize kustomize/overlays/staging
+
+      - name: Kustomize build — prod
+        run: kubectl kustomize kustomize/overlays/prod

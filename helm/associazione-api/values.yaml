@@ -1,0 +1,106 @@
+# ---------------------------------------------------------------------------
+# Default values — overridden per environment via values-<env>.yaml
+# ---------------------------------------------------------------------------
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/<DevilFlow92>/associazione-api
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/path: "/metrics"
+  prometheus.io/port: "8000"
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+  host: associazione-api.local
+  tls: []
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+
+networkPolicy:
+  enabled: false
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 15
+  periodSeconds: 20
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: 8000
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  failureThreshold: 3
+
+# ---------------------------------------------------------------------------
+# Application environment variables
+# ---------------------------------------------------------------------------
+config:
+  appEnv: production
+  appDebug: "false"
+  logLevel: INFO
+
+# ---------------------------------------------------------------------------
+# Secrets — valori placeholder, da sovrascrivere con Sealed Secrets / ESO
+# ---------------------------------------------------------------------------
+secret:
+  databaseUrl: ""
+  secretKey: ""
+
+# ---------------------------------------------------------------------------
+# Migration Job (Alembic)
+# ---------------------------------------------------------------------------
+migrations:
+  enabled: true
+  ttlSecondsAfterFinished: 120

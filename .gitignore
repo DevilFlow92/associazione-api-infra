@@ -1,0 +1,16 @@
+# Helm
+*.tgz
+charts/
+
+# Secrets locali
+*.env
+secrets.yaml
+*-secret-local.yaml
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

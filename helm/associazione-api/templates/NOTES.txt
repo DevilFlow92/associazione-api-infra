@@ -1,0 +1,22 @@
+Thank you for installing {{ .Chart.Name }} {{ .Chart.Version }}.
+
+Application: {{ include "associazione-api.fullname" . }}
+Environment: {{ .Values.config.appEnv }}
+
+{{- if .Values.ingress.enabled }}
+Access the API at:
+  https://{{ .Values.ingress.host }}/docs
+{{- else }}
+Ingress is disabled. To access the API locally:
+  kubectl port-forward svc/{{ include "associazione-api.fullname" . }} 8000:80 -n {{ .Release.Namespace }}
+  Then open: http://localhost:8000/docs
+{{- end }}
+
+{{- if .Values.migrations.enabled }}
+A migration Job will run automatically before the Deployment starts.
+Check its status with:
+  kubectl get jobs -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
+{{- end }}
+
+Health check:
+  kubectl get pods -n {{ .Release.Namespace }} -l {{ include "associazione-api.selectorLabels" . | replace ": " "=" | replace "\n" "," }}

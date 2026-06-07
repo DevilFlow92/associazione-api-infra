@@ -1,0 +1,39 @@
+replicaCount: 2
+
+image:
+  pullPolicy: Always
+  tag: "staging"
+
+ingress:
+  enabled: true
+  host: associazione-api.staging.example.com
+  tls:
+    - secretName: associazione-api-staging-tls
+      hosts:
+        - associazione-api.staging.example.com
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPUUtilizationPercentage: 70
+
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+networkPolicy:
+  enabled: true
+
+config:
+  appEnv: staging
+  appDebug: "false"
+  logLevel: INFO
