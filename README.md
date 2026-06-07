@@ -38,7 +38,29 @@ Helm charts and Kustomize overlays for deploying the music association managemen
 | `PodDisruptionBudget` | Minimum availability during node drain |
 | `NetworkPolicy` | Restricts ingress/egress to known peers |
 | `Job` (pre-install hook) | Runs Alembic migrations before deploy |
+| `PersistentVolumeClaim` | Upload storage (prod only, controlled by `uploads.persistent`) |
 | `ServiceAccount` | Dedicated identity, no automount |
+
+## Container image
+
+The application image is built from `ghcr.io/astral-sh/uv:python3.12-bookworm-slim` — the official uv base image. Key implications for the chart:
+
+- `runAsNonRoot` is `false` (uv base image runs as uid 0 by default)
+- `readOnlyRootFilesystem` is `true` — the chart mounts three writable volumes:
+  - `/tmp` — general temporary files
+  - `/root/.cache` — uv package cache (written at runtime)
+  - `/app/uploads` — uploaded PDF files (emptyDir in dev, PVC in prod)
+
+## Upload storage
+
+Uploaded files are written to `/app/uploads` inside the container. The chart supports two modes, controlled by `uploads.persistent`:
+
+| Mode | `uploads.persistent` | Backend | Data survives pod restart |
+|---|---|---|---|
+| Dev | `false` (default) | `emptyDir` | ✗ |
+| Prod | `true` | `PersistentVolumeClaim` | ✓ |
+
+In production, configure `uploads.size` and optionally `uploads.storageClass` in `values-prod.yaml`.
 
 ## Prerequisites
 
@@ -109,6 +131,7 @@ kubectl apply -k kustomize/overlays/prod
 | NetworkPolicy | ✗ | ✓ | ✓ |
 | TLS | ✗ | ✓ | ✓ |
 | Log level | DEBUG | INFO | WARNING |
+| Upload storage | emptyDir | emptyDir | PVC 10Gi |
 | Resource limits | minimal | standard | production |
 
 ## Migration strategy
@@ -153,7 +176,7 @@ Secrets are passed at install time via `--set`. In production, integrate with
 [External Secrets Operator](https://external-secrets.io) to avoid storing plaintext values in CI.
 
 **readOnlyRootFilesystem**
-The container filesystem is read-only. A writable `emptyDir` is mounted at `/tmp` for any temporary file needs.
+The container filesystem is read-only. Three `emptyDir` volumes are mounted for writable paths: `/tmp`, `/root/.cache` (uv), and `/app/uploads`.
 
 **NetworkPolicy**
 Enabled in staging and prod. Restricts inbound traffic to the nginx ingress controller namespace only,
@@ -163,3 +186,4 @@ and outbound to PostgreSQL + DNS. All other traffic is denied by default.
 
 - [associazione-api](https://github.com/DevilFlow92/associazione-api) — core backend (FastAPI + PostgreSQL)
 - [associazione-api-toolkit](https://github.com/DevilFlow92/associazione-api-toolkit) — shared utilities
+- **associazione-api-infra** — ← you are here
