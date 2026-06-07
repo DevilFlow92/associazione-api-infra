@@ -162,4 +162,4 @@ and outbound to PostgreSQL + DNS. All other traffic is denied by default.
 ## Related repositories
 
 - [associazione-api](https://github.com/DevilFlow92/associazione-api) — core backend (FastAPI + PostgreSQL)
-- [associazione-api-toolkit](https://github.com/DevilFlow92/associazione-api-toolkit) — shared utilities *(coming soon)*
+- [associazione-api-toolkit](https://github.com/DevilFlow92/associazione-api-toolkit) — shared utilities
