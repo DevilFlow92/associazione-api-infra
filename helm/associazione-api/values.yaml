@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/<DevilFlow92>/associazione-api
+  repository: ghcr.io/DevilFlow92/associazione-api
   pullPolicy: IfNotPresent
   tag: "latest"
 
@@ -21,10 +21,11 @@ podAnnotations:
   prometheus.io/path: "/metrics"
   prometheus.io/port: "8000"
 
+# NOTE: runAsNonRoot is false because the uv base image runs as root (uid 0).
+# To harden further, add a non-root user in the Dockerfile and set runAsUser: 1000.
 podSecurityContext:
-  runAsNonRoot: true
-  runAsUser: 1000
-  fsGroup: 1000
+  runAsNonRoot: false
+  fsGroup: 0
 
 securityContext:
   allowPrivilegeEscalation: false
@@ -104,3 +105,14 @@ secret:
 migrations:
   enabled: true
   ttlSecondsAfterFinished: 120
+
+# ---------------------------------------------------------------------------
+# Uploads — persistent storage for uploaded PDF files
+# ---------------------------------------------------------------------------
+uploads:
+  # Set to true to use a PersistentVolumeClaim (recommended for staging/prod).
+  # Set to false to use an emptyDir (data lost on pod restart — dev only).
+  persistent: false
+  size: 1Gi
+  storageClass: ""
+  mountPath: /app/uploads

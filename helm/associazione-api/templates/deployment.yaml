@@ -69,11 +69,28 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
+            # Writable /tmp required by readOnlyRootFilesystem
             - name: tmp
               mountPath: /tmp
+            # uv writes package cache here at runtime
+            - name: uv-cache
+              mountPath: /root/.cache
+            # Uploaded PDF files
+            - name: uploads
+              mountPath: {{ .Values.uploads.mountPath }}
       volumes:
         - name: tmp
           emptyDir: {}
+        - name: uv-cache
+          emptyDir: {}
+        {{- if .Values.uploads.persistent }}
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: {{ include "associazione-api.fullname" . }}-uploads
+        {{- else }}
+        - name: uploads
+          emptyDir: {}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

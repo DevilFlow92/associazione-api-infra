@@ -1,15 +1,12 @@
 replicaCount: 3
 
 image:
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   tag: "latest"
 
 ingress:
   enabled: true
   host: associazione-api.example.com
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
   tls:
     - secretName: associazione-api-prod-tls
       hosts:
@@ -27,8 +24,7 @@ autoscaling:
   enabled: true
   minReplicas: 3
   maxReplicas: 10
-  targetCPUUtilizationPercentage: 60
-  targetMemoryUtilizationPercentage: 70
+  targetCPUUtilizationPercentage: 70
 
 podDisruptionBudget:
   enabled: true
@@ -41,3 +37,9 @@ config:
   appEnv: production
   appDebug: "false"
   logLevel: WARNING
+
+# In produzione gli upload devono essere persistenti
+uploads:
+  persistent: true
+  size: 10Gi
+  storageClass: ""

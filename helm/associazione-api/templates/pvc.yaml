@@ -1,0 +1,18 @@
+{{- if .Values.uploads.persistent }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "associazione-api.fullname" . }}-uploads
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "associazione-api.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.uploads.size }}
+  {{- if .Values.uploads.storageClass }}
+  storageClassName: {{ .Values.uploads.storageClass }}
+  {{- end }}
+{{- end }}
