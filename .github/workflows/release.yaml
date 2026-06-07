@@ -53,4 +53,15 @@ jobs:
 
             ### Helm chart
             Download the chart package from the assets below and install with:
-```bash
+
+            helm install associazione-api ./associazione-api-${{ steps.version.outputs.VERSION }}.tgz \
+              -f values-prod.yaml \
+              --set secret.databaseUrl=YOUR_DB_URL \
+              --set secret.secretKey=YOUR_SECRET_KEY \
+              -n associazione-api-prod
+
+            ### What's changed
+            See commits at ${{ github.server_url }}/${{ github.repository }}/commits/${{ github.ref_name }}
+          files: .chart-output/*.tgz
+          draft: false
+          prerelease: false
