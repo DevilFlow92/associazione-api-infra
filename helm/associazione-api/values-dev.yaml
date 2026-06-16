@@ -28,4 +28,3 @@ networkPolicy:
 config:
   appEnv: development
   appDebug: "true"
-  logLevel: DEBUG

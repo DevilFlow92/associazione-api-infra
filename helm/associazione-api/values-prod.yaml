@@ -36,7 +36,6 @@ networkPolicy:
 config:
   appEnv: production
   appDebug: "false"
-  logLevel: WARNING
 
 # In produzione gli upload devono essere persistenti
 uploads:

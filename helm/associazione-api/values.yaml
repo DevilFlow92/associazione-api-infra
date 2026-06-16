@@ -90,7 +90,6 @@ readinessProbe:
 config:
   appEnv: production
   appDebug: "false"
-  logLevel: INFO
 
 # ---------------------------------------------------------------------------
 # Secrets — valori placeholder, da sovrascrivere con Sealed Secrets / ESO

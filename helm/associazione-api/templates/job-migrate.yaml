@@ -51,9 +51,15 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           volumeMounts:
+            # Writable /tmp required by readOnlyRootFilesystem
             - name: tmp
               mountPath: /tmp
+            # uv writes package cache here at runtime
+            - name: uv-cache
+              mountPath: /root/.cache
       volumes:
         - name: tmp
+          emptyDir: {}
+        - name: uv-cache
           emptyDir: {}
 {{- end }}
