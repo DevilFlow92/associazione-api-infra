@@ -57,7 +57,10 @@ jobs:
             helm install associazione-api ./associazione-api-${{ steps.version.outputs.VERSION }}.tgz \
               -f values-prod.yaml \
               --set secret.databaseUrl=YOUR_DB_URL \
+              --set secret.migrationDatabaseUrl=YOUR_MIGRATION_DB_URL \
               --set secret.secretKey=YOUR_SECRET_KEY \
+              --set secret.jwtSecretKey=YOUR_JWT_SECRET_KEY \
+              --set secret.bootstrapAdminPassword=YOUR_ADMIN_PASSWORD \
               -n associazione-api-prod
 
             ### What's changed
