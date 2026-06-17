@@ -8,3 +8,9 @@ metadata:
 data:
   APP_ENV: {{ .Values.config.appEnv | quote }}
   APP_DEBUG: {{ .Values.config.appDebug | quote }}
+  # ── Autenticazione (valori non sensibili) ──────────────────────────────
+  JWT_ALGORITHM: {{ .Values.config.jwtAlgorithm | quote }}
+  JWT_EXPIRE_MINUTES: {{ .Values.config.jwtExpireMinutes | quote }}
+  SESSION_EXPIRE_HOURS: {{ .Values.config.sessionExpireHours | quote }}
+  SESSION_COOKIE_NAME: {{ .Values.config.sessionCookieName | quote }}
+  SESSION_COOKIE_SECURE: {{ .Values.config.sessionCookieSecure | quote }}

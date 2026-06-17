@@ -28,3 +28,5 @@ networkPolicy:
 config:
   appEnv: development
   appDebug: "true"
+  # Dev gira via HTTP: il cookie Secure va disattivato o il browser non lo invia.
+  sessionCookieSecure: "false"

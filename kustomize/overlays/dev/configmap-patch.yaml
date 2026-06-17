@@ -5,3 +5,5 @@ metadata:
 data:
   APP_ENV: development
   APP_DEBUG: "true"
+  # Dev gira via HTTP: il cookie Secure va disattivato o il browser non lo invia.
+  SESSION_COOKIE_SECURE: "false"

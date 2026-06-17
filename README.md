@@ -32,8 +32,8 @@ Helm charts and Kustomize overlays for deploying the music association managemen
 | `Deployment` | Runs the FastAPI application |
 | `Service` | ClusterIP — internal traffic routing |
 | `Ingress` | External access via nginx ingress controller |
-| `ConfigMap` | Non-sensitive environment variables |
-| `Secret` | DATABASE_URL and SECRET_KEY |
+| `ConfigMap` | Non-sensitive environment variables (app + auth: JWT/session config) |
+| `Secret` | DATABASE_URL, SECRET_KEY, JWT_SECRET_KEY, MIGRATION_DATABASE_URL, BOOTSTRAP_ADMIN_PASSWORD |
 | `HorizontalPodAutoscaler` | CPU + memory autoscaling |
 | `PodDisruptionBudget` | Minimum availability during node drain |
 | `NetworkPolicy` | Restricts ingress/egress to known peers |
@@ -76,8 +76,11 @@ In production, configure `uploads.size` and optionally `uploads.storageClass` in
 ```bash
 helm install associazione-api helm/associazione-api \
   -f helm/associazione-api/values-dev.yaml \
-  --set secret.databaseUrl="postgresql+asyncpg://user:pass@postgres:5432/associazione_db" \
+  --set secret.databaseUrl="postgresql+asyncpg://app_rw:pass@postgres:5432/associazione_db" \
+  --set secret.migrationDatabaseUrl="postgresql+asyncpg://associazione:pass@postgres:5432/associazione_db" \
   --set secret.secretKey="your-secret-key" \
+  --set secret.jwtSecretKey="your-jwt-signing-key" \
+  --set secret.bootstrapAdminPassword="your-admin-password" \
   --namespace associazione-api-dev \
   --create-namespace
 ```
@@ -87,11 +90,21 @@ helm install associazione-api helm/associazione-api \
 ```bash
 helm install associazione-api helm/associazione-api \
   -f helm/associazione-api/values-prod.yaml \
-  --set secret.databaseUrl="postgresql+asyncpg://user:pass@postgres:5432/associazione_db" \
+  --set secret.databaseUrl="postgresql+asyncpg://app_rw:pass@postgres:5432/associazione_db" \
+  --set secret.migrationDatabaseUrl="postgresql+asyncpg://associazione:pass@postgres:5432/associazione_db" \
   --set secret.secretKey="your-secret-key" \
+  --set secret.jwtSecretKey="your-jwt-signing-key" \
+  --set secret.bootstrapAdminPassword="your-admin-password" \
   --namespace associazione-api-prod \
   --create-namespace
 ```
+
+> **DB roles (least privilege).** At runtime the app uses a DML-only role
+> (`app_rw`) via `databaseUrl`. Alembic migrations need DDL, so the migration
+> Job uses the schema owner via `migrationDatabaseUrl`. If `migrationDatabaseUrl`
+> is left empty the Job falls back to `databaseUrl` — only correct if that role
+> can run DDL. `bootstrapAdminPassword` seeds the initial superuser created by
+> the auth/RBAC migration on first deploy.
 
 ### Upgrade
 
@@ -99,7 +112,9 @@ helm install associazione-api helm/associazione-api \
 helm upgrade associazione-api helm/associazione-api \
   -f helm/associazione-api/values-prod.yaml \
   --set secret.databaseUrl="..." \
+  --set secret.migrationDatabaseUrl="..." \
   --set secret.secretKey="..." \
+  --set secret.jwtSecretKey="..." \
   -n associazione-api-prod
 ```
 

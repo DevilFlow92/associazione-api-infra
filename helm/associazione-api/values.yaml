@@ -90,13 +90,27 @@ readinessProbe:
 config:
   appEnv: production
   appDebug: "false"
+  # ── Autenticazione (valori non sensibili) ────────────────────────────────
+  jwtAlgorithm: HS256
+  jwtExpireMinutes: 10080      # 7 giorni — service account stateless e long-lived
+  sessionExpireHours: 12       # durata sessioni utenti umani (server-side)
+  sessionCookieName: session_token
+  sessionCookieSecure: "true"  # cookie solo HTTPS — disattivare solo in dev via HTTP
 
 # ---------------------------------------------------------------------------
 # Secrets — valori placeholder, da sovrascrivere con Sealed Secrets / ESO
 # ---------------------------------------------------------------------------
 secret:
+  # URL runtime dell'app (ruolo a privilegio minimo app_rw — solo DML).
   databaseUrl: ""
   secretKey: ""
+  # Chiave di firma dei JWT dei service account.
+  jwtSecretKey: ""
+  # URL dell'owner dello schema per le migrazioni Alembic (DDL). Se vuoto, il
+  # Job ricade su databaseUrl — corretto solo se quel ruolo può fare DDL.
+  migrationDatabaseUrl: ""
+  # Password del superuser creato dalla migrazione auth/RBAC al primo deploy.
+  bootstrapAdminPassword: ""
 
 # ---------------------------------------------------------------------------
 # Migration Job (Alembic)

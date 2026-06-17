@@ -5,3 +5,11 @@ metadata:
 data:
   APP_ENV: production
   APP_DEBUG: "false"
+  # Autenticazione (valori non sensibili). I secret (JWT_SECRET_KEY,
+  # MIGRATION_DATABASE_URL, BOOTSTRAP_ADMIN_PASSWORD) sono forniti fuori repo
+  # tramite il Secret `associazione-api` referenziato dal Deployment.
+  JWT_ALGORITHM: HS256
+  JWT_EXPIRE_MINUTES: "10080"
+  SESSION_EXPIRE_HOURS: "12"
+  SESSION_COOKIE_NAME: session_token
+  SESSION_COOKIE_SECURE: "true"
